@@ -1,21 +1,12 @@
-import requests
-from bs4 import BeautifulSoup
 import re
 from typing import List, Tuple
+
 from model import *
+from utils import *
 
 requests.packages.urllib3.disable_warnings()
 
 hendon_mob_url = "https://pokerdb.thehendonmob.com"
-
-
-def get_soup(url) -> BeautifulSoup:
-    page = requests.get(url, verify=False)
-    return BeautifulSoup(page.content, "html.parser")
-
-
-def text2number(text):
-    return int(re.sub(r'[^\d]', "", text))
 
 
 def get_tournament_info(tournament: Tournament) -> Tuple[TournamentMeta, List[Participant]]:
