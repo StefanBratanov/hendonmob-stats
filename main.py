@@ -54,7 +54,6 @@ def get_soup(url) -> BeautifulSoup:
 
 
 def text2number(text):
-
     return int(re.sub(r'[^\d]', "", text))
 
 
