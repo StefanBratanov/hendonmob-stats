@@ -1,38 +1,36 @@
+from typing import List
+
+
 class Festival:
-    def __init__(self, name, url):
+    def __init__(self, id: int, name: str, url: str):
+        self.id = id
         self.name = name
         self.url = url
 
-    def __repr__(self):
-        return f"{self.name}|{self.url}"
 
-
-class Tournament:
-    def __init__(self, name, url):
+class Player:
+    def __init__(self, id: int, name: str, url: str, country: str):
+        self.id = id
         self.name = name
         self.url = url
-
-    def __repr__(self):
-        return f"{self.name}|{self.url}"
-
-
-class TournamentMeta:
-    def __init__(self, name, venue, entries, prize_pool):
-        self.name = name
-        self.venue = venue
-        self.entries = entries
-        self.prize_pool = prize_pool
-
-    def __repr__(self):
-        return f"{self.name}|{self.venue}|{self.entries}|{self.prize_pool}"
-
-
-class Participant:
-    def __init__(self, name, country, place, prize):
-        self.name = name
         self.country = country
+
+
+class Result:
+    def __init__(self, player: Player, place: int, prize: int):
+        self.player = player
         self.place = place
         self.prize = prize
 
-    def __repr__(self):
-        return f"{self.name}|{self.country}|{self.place}|{self.prize}"
+
+class Tournament:
+    def __init__(self, id: int, name: str, festival: Festival, url: str, venue: str, entries: int, prize_pool: int,
+                 results: List[Result]):
+        self.id = id
+        self.name = name
+        self.festival = festival
+        self.url = url
+        self.venue = venue
+        self.entries = entries
+        self.prize_pool = prize_pool
+        self.results = results
