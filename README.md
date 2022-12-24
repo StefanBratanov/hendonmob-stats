@@ -1,8 +1,8 @@
 # hendonmob-stats
 
-Python scripts to extract data from [Hendon Mob](https://www.thehendonmob.com/)
+Python scripts to extract data from [Hendon Mob](https://www.thehendonmob.com/).
 
-The main scraping logic is located in `extractors.py`
+The main scraping logic is located in [extractors.py](./extractors.py).
 
 ## Prerequisites
 - Python 3.7+
