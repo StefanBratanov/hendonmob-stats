@@ -13,7 +13,8 @@ def extract_tournament(festival: Festival, url: str) -> Tournament:
 
     id = extract_id(url)
 
-    name = soup.select_one("div.content-content h1").text.strip()
+    name = normalise_whitespace(soup.select_one(
+        "div.content-content h1").text.strip())
 
     venue = soup.select_one("div.header-image__venue").text.strip()
 
