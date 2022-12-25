@@ -1,4 +1,6 @@
 import unittest
+import datetime
+import random
 
 from extractors import *
 
@@ -55,6 +57,22 @@ class Tests(unittest.TestCase):
         self.assertEqual(result.player.country, "England")
         self.assertEqual(
             result.player.url, "https://pokerdb.thehendonmob.com/player.php?a=r&n=125241")
+
+    def test_random_year_tournaments_retrieval(self):
+        random_year = random.randint(1970, datetime.date.today().year)
+        print("Testing for year {}".format(random_year))
+        festivals = extract_festivals(random_year)
+        if len(festivals) < 1:
+            return
+        random_festival = random.choice(festivals)
+        tournament_urls = extract_tournament_urls(random_festival)
+        if len(tournament_urls) < 1:
+            return
+        print("Retrieved {} tournaments for festival {}".format(
+            len(tournament_urls), random_festival.name))
+        random_tournament_url = random.choice(tournament_urls)
+        tournament = extract_tournament(random_festival, random_tournament_url)
+        self.assertIsNotNone(tournament.name)
 
 
 if __name__ == "__main__":
