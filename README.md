@@ -2,9 +2,9 @@
 
 [![tests](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml/badge.svg)](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml)
 
-Python scripts to extract data from [Hendon Mob](https://www.thehendonmob.com/).
+Python scripts to extract and save data from [Hendon Mob](https://www.thehendonmob.com/).
 
-The main scraping logic is located in [extractors.py](./extractors.py).
+Look at the tests for usage.
 
 ## Prerequisites
 - Python 3.7+
@@ -12,5 +12,10 @@ The main scraping logic is located in [extractors.py](./extractors.py).
 ## Setup
 ```bash
 pip install -r requirements.txt
+```
+
+## Run tests
+```bash
+python -m unittest extractors_tests database_tests
 ```
 

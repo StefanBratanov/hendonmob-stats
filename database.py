@@ -1,0 +1,81 @@
+from pathlib import Path
+import os
+import pandas as pd
+from extractors import *
+import urllib3
+
+base_db_dir = os.path.join(Path.home(), "hendonmob-stats")
+
+tournament_db_columns = ['festival_id', 'festival_name', 'festival_url',
+                         'id', 'name', 'url', 'venue', 'entries', 'prize_pool']
+tournament_db_types = {'festival_id': 'Int64', 'festival_name': 'string', 'festival_url': 'string',
+                       'id': 'Int64', 'name': 'string', 'url': 'string', 'venue': 'string', 'entries': 'Int64', 'prize_pool': 'Int64'}
+tournament_db_file = "tournaments.parquet.gz"
+
+result_db_columns = ['tournament_id', 'player_id', 'player_name',
+                     'player_url', 'player_country', 'place', 'prize']
+result_db_types = {'tournament_id': 'Int64', 'player_id': 'Int64', 'player_name': 'string',
+                   'player_url': 'string', 'player_country': 'string', 'place': 'Int64', 'prize': 'Int64'}
+result_db_file = "results.parquet.gz"
+
+
+def get_tournament_db_row(festival: Festival, tournament: Tournament) -> dict:
+    return {'festival_id': festival.id, 'festival_name': festival.name,
+            'festival_url': festival.url, 'id': tournament.id, 'name': tournament.name,
+            'url': tournament.url, 'venue': tournament.venue, 'entries': tournament.entries, 'prize_pool': tournament.prize_pool}
+
+
+def get_result_db_row(tournament: Tournament, result: Result) -> dict:
+    return {'tournament_id': tournament.id, 'player_id': result.player.id, 'player_name': result.player.name,
+            'player_url': result.player.url, 'player_country': result.player.country, 'place': result.place, 'prize': result.prize}
+
+
+def save_year_to_db(year: int):
+    # disable requests warning
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    tournament_df = pd.DataFrame(columns=tournament_db_columns)
+    tournament_df = tournament_df.astype(tournament_db_types)
+    result_df = pd.DataFrame(columns=result_db_columns)
+    result_df = result_df.astype(result_db_types)
+    db_dir = Path(os.path.join(base_db_dir, str(year)))
+    db_dir.mkdir(parents=True, exist_ok=True)
+    festivals = extract_festivals(year)
+    print("Extracted {} festival(s) for {}".format(len(festivals), year))
+    for f_idx, festival in enumerate(festivals):
+        tournament_urls = extract_tournament_urls(festival)
+        print("Processing tournament(s) for {} [{}/{}]".format(festival.name,
+                                                               f_idx+1, len(festivals)))
+        tournament_db_rows = []
+        for t_idx, tournament_url in enumerate(tournament_urls):
+            tournament = extract_tournament(festival, tournament_url)
+            tournament_db_rows.append(
+                get_tournament_db_row(festival, tournament))
+            result_db_rows = list(map(lambda result: get_result_db_row(
+                tournament, result), tournament.results))
+            result_df = pd.concat(
+                [result_df, pd.DataFrame(result_db_rows).astype(result_db_types)])
+            print("Processed {} [{}/{}]".format(tournament.name,
+                  t_idx+1, len(tournament_urls)))
+        tournament_df = pd.concat(
+            [tournament_df, pd.DataFrame(tournament_db_rows).astype(tournament_db_types)])
+
+    tournaments_file = os.path.join(db_dir, tournament_db_file)
+    tournament_df.to_parquet(
+        tournaments_file, engine="fastparquet", compression="gzip")
+    print("Saved {} tournament(s) to {}".format(
+        tournament_df.shape[0], tournaments_file))
+    results_file = os.path.join(db_dir, result_db_file)
+    result_df.to_parquet(
+        results_file, engine="fastparquet", compression="gzip")
+    print("Saved {} tournament result(s) to {}".format(
+        result_df.shape[0], results_file))
+
+
+def get_tournaments(year: int) -> pd.DataFrame:
+    db_dir = Path(os.path.join(base_db_dir, str(year)))
+    return pd.read_parquet(os.path.join(db_dir, tournament_db_file), engine="fastparquet")
+
+
+def get_results(year: int) -> pd.DataFrame:
+    db_dir = Path(os.path.join(base_db_dir, str(year)))
+    return pd.read_parquet(os.path.join(db_dir, result_db_file), engine="fastparquet")

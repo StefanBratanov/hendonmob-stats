@@ -73,6 +73,7 @@ class Tests(unittest.TestCase):
         random_tournament_url = random.choice(tournament_urls)
         tournament = extract_tournament(random_festival, random_tournament_url)
         self.assertIsNotNone(tournament.name)
+        print("Tested extracting {}".format(tournament.name))
 
 
 if __name__ == "__main__":
