@@ -2,9 +2,7 @@
 
 [![tests](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml/badge.svg)](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml)
 
-Python scripts to extract and save data from [Hendon Mob](https://www.thehendonmob.com/).
-
-Look at the tests for usage.
+Python scripts to extract and save data from [Hendon Mob](https://www.thehendonmob.com/). Look at the tests for usage.
 
 ## Prerequisites
 - Python 3.7+
