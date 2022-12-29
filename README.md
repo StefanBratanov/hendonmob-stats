@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml/badge.svg)](https://github.com/StefanBratanov/hendonmob-stats/actions/workflows/tests.yml)
 
-Python scripts to extract and save data from [Hendon Mob](https://www.thehendonmob.com/). Look at the tests for usage.
+Python scripts to extract, save and visualise data from [Hendon Mob](https://www.thehendonmob.com/). Look at the tests for usage. Once the data is saved, you can run [gui.py](./gui.py) to visualise the data.
 
 ## Prerequisites
 - Python 3.7+
@@ -10,6 +10,8 @@ Python scripts to extract and save data from [Hendon Mob](https://www.thehendonm
 ## Setup
 ```bash
 pip install -r requirements.txt
+# only if running gui.py
+pip install pandasgui
 ```
 
 ## Run tests

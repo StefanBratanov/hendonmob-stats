@@ -1,4 +1,6 @@
 from pathlib import Path
+import shutil
+import datetime
 import os
 import pandas as pd
 from extractors import *
@@ -19,6 +21,13 @@ result_db_types = {'tournament_id': 'Int64', 'player_id': 'Int64', 'player_name'
 result_db_file = "results.parquet.gz"
 
 
+first_year = 1970
+
+
+def read_parquet_file(file_path: str) -> pd.DataFrame:
+    return pd.read_parquet(file_path, engine="fastparquet")
+
+
 def get_tournament_db_row(festival: Festival, tournament: Tournament) -> dict:
     return {'festival_id': festival.id, 'festival_name': festival.name,
             'festival_url': festival.url, 'id': tournament.id, 'name': tournament.name,
@@ -30,6 +39,10 @@ def get_result_db_row(tournament: Tournament, result: Result) -> dict:
             'player_url': result.player.url, 'player_country': result.player.country, 'place': result.place, 'prize': result.prize}
 
 
+def get_db_dir(year: int) -> Path:
+    return Path(os.path.join(base_db_dir, str(year)))
+
+
 def save_year_to_db(year: int):
     # disable requests warning
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -37,7 +50,7 @@ def save_year_to_db(year: int):
     tournament_df = tournament_df.astype(tournament_db_types)
     result_df = pd.DataFrame(columns=result_db_columns)
     result_df = result_df.astype(result_db_types)
-    db_dir = Path(os.path.join(base_db_dir, str(year)))
+    db_dir = get_db_dir(year)
     db_dir.mkdir(parents=True, exist_ok=True)
     festivals = extract_festivals(year)
     print("Extracted {} festival(s) for {}".format(len(festivals), year))
@@ -71,11 +84,41 @@ def save_year_to_db(year: int):
         result_df.shape[0], results_file))
 
 
-def get_tournaments(year: int) -> pd.DataFrame:
-    db_dir = Path(os.path.join(base_db_dir, str(year)))
-    return pd.read_parquet(os.path.join(db_dir, tournament_db_file), engine="fastparquet")
+def delete_year_from_db(year: int):
+    db_dir = get_db_dir(year)
+    shutil.rmtree(db_dir)
+    print("Removed data from db for {}".format(year))
 
 
-def get_results(year: int) -> pd.DataFrame:
-    db_dir = Path(os.path.join(base_db_dir, str(year)))
-    return pd.read_parquet(os.path.join(db_dir, result_db_file), engine="fastparquet")
+def get_tournaments(years: List[int] = None) -> pd.DataFrame:
+    if years is None:
+        years = list(range(first_year, datetime.date.today().year))
+    tournaments_df = None
+    for year in years:
+        db_file_path = os.path.join(get_db_dir(year), tournament_db_file)
+        if not os.path.exists(db_file_path):
+            continue
+        if tournaments_df is None:
+            tournaments_df = read_parquet_file(db_file_path)
+        else:
+            tournaments_df = pd.concat(
+                [tournaments_df, read_parquet_file(db_file_path)])
+        print("Retrieved tournaments data for {}".format(year))
+    return tournaments_df
+
+
+def get_results(years: List[int] = None) -> pd.DataFrame:
+    if years is None:
+        years = list(range(first_year, datetime.date.today().year))
+    results_df = None
+    for year in years:
+        db_file_path = os.path.join(get_db_dir(year), result_db_file)
+        if not os.path.exists(db_file_path):
+            continue
+        if results_df is None:
+            results_df = read_parquet_file(db_file_path)
+        else:
+            results_df = pd.concat(
+                [results_df, read_parquet_file(db_file_path)])
+        print("Retrieved results data for {}".format(year))
+    return results_df
