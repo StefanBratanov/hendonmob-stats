@@ -82,8 +82,9 @@ def save_year_to_db(year: int):
                 [result_df, pd.DataFrame(result_db_rows).astype(result_db_types)])
             print("Processed {} [{}/{}]".format(tournament.name,
                   t_idx+1, len(tournament_urls)))
-        tournament_df = pd.concat(
-            [tournament_df, pd.DataFrame(tournament_db_rows).astype(tournament_db_types)])
+        if len(tournament_db_rows) > 0:
+            tournament_df = pd.concat(
+                [tournament_df, pd.DataFrame(tournament_db_rows).astype(tournament_db_types)])
 
     tournaments_file = os.path.join(db_dir, tournament_db_file)
     tournament_df.to_parquet(

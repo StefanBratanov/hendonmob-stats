@@ -19,4 +19,7 @@ def normalise_whitespace(text) -> str:
     return ' '.join(text.split())
 
 def text2number(text) -> int:
-    return int(re.sub(r'[^\d]', "", text))
+    try:
+        return int(re.sub(r'[^\d]', "", text))
+    except ValueError:
+        return None
