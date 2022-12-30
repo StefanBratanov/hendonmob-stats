@@ -24,6 +24,10 @@ result_db_file = "results.parquet.gz"
 first_year = 1970
 
 
+def get_year_range() -> List[int]:
+    return list(range(first_year, datetime.date.today().year + 1))
+
+
 def read_parquet_file(file_path: str) -> pd.DataFrame:
     return pd.read_parquet(file_path, engine="fastparquet")
 
@@ -41,6 +45,12 @@ def get_result_db_row(tournament: Tournament, result: Result) -> dict:
 
 def get_db_dir(year: int) -> Path:
     return Path(os.path.join(base_db_dir, str(year)))
+
+
+def save_all_years_to_db():
+    for year in get_year_range():
+        print("Processing {}".format(year))
+        save_year_to_db(year)
 
 
 def save_year_to_db(year: int):
@@ -92,7 +102,7 @@ def delete_year_from_db(year: int):
 
 def get_tournaments(years: List[int] = None) -> pd.DataFrame:
     if years is None:
-        years = list(range(first_year, datetime.date.today().year))
+        years = get_year_range()
     tournaments_df = None
     for year in years:
         db_file_path = os.path.join(get_db_dir(year), tournament_db_file)
@@ -109,7 +119,7 @@ def get_tournaments(years: List[int] = None) -> pd.DataFrame:
 
 def get_results(years: List[int] = None) -> pd.DataFrame:
     if years is None:
-        years = list(range(first_year, datetime.date.today().year))
+        years = get_year_range()
     results_df = None
     for year in years:
         db_file_path = os.path.join(get_db_dir(year), result_db_file)
