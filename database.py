@@ -50,7 +50,10 @@ def get_db_dir(year: int) -> Path:
 def save_all_years_to_db():
     for year in get_year_range():
         print("Processing {}".format(year))
-        save_year_to_db(year)
+        try:
+            save_year_to_db(year)
+        except:
+            print("Failed to process {}".format(year))
 
 
 def save_year_to_db(year: int):
