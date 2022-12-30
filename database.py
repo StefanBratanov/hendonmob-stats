@@ -24,8 +24,8 @@ result_db_file = "results.parquet.gz"
 first_year = 1970
 
 
-def get_year_range() -> List[int]:
-    return list(range(first_year, datetime.date.today().year + 1))
+def get_year_range(start: int = first_year) -> List[int]:
+    return list(range(start, datetime.date.today().year + 1))
 
 
 def read_parquet_file(file_path: str) -> pd.DataFrame:
@@ -47,8 +47,8 @@ def get_db_dir(year: int) -> Path:
     return Path(os.path.join(base_db_dir, str(year)))
 
 
-def save_all_years_to_db():
-    for year in get_year_range():
+def save_all_years_to_db(start: int = first_year):
+    for year in get_year_range(start):
         print("Processing {}".format(year))
         try:
             save_year_to_db(year)
